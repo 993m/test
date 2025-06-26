@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Turnstile Test</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <style>
+    html, body { height: 100%; margin: 0; display: flex; align-items: center; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div id="cf-turnstile"
+       class="cf-turnstile"
+       data-sitekey="0x4AAAAAAA_p1mcUrGyeWba8"
+       data-callback="onSuccess"
+       data-theme="light"
+       data-size="invisible">
+  </div>
+  <script>
+    function onSuccess(token) {
+      if (window.ReactNativeWebView?.postMessage) {
+        window.ReactNativeWebView.postMessage(token);
+      } else {
+        alert("Token: " + token);
+      }
+    }
+
+    window.onload = () => {
+      const interval = setInterval(() => {
+        if (typeof turnstile !== 'undefined') {
+          clearInterval(interval);
+          const widgetId = turnstile.render('#cf-turnstile');
+          turnstile.execute(widgetId);
+        }
+      }, 100);
+    };
+  </script>
+</body>
+</html>
