@@ -18,12 +18,15 @@
   </div>
   <script>
     function onSuccess(token) {
-      if (window.ReactNativeWebView?.postMessage) {
-        window.ReactNativeWebView.postMessage(token);
-      } else {
-        alert("Token: " + token);
-      }
+  console.log("Inside onSuccess with token:", token); 
+  setTimeout(() => {
+    if (window.ReactNativeWebView?.postMessage) {
+      window.ReactNativeWebView.postMessage(token);
+    } else {
+      alert("Token: " + token);
     }
+  }, 100);
+}
 
     window.onload = () => {
       const interval = setInterval(() => {
