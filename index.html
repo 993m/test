@@ -30,6 +30,16 @@
       }
     }
 
+    function safelyExecute() {
+      if (!widgetId || executing) return;
+      try {
+        turnstile.execute(widgetId);
+        executing = true;
+      } catch (e) {
+        console.error("Turnstile execute error:", e);
+      }
+    }
+
     window.onload = () => {
       window.ReactNativeWebView?.postMessage("Turnstile script loaded");
 
@@ -40,10 +50,11 @@
             sitekey: '0x4AAAAAAA_p1mcUrGyeWba8',
             callback: onSuccess,
             theme: 'light',
-            size: 'compact' // ✅ valid: "compact", "normal", or "flexible"
+            size: 'compact'
           });
-          turnstile.execute(widgetId);
-          executing = true;
+
+          // Wait a little before executing to let rendering settle
+          setTimeout(() => safelyExecute(), 300);
         }
       }, 100);
     };
@@ -52,9 +63,10 @@
       if (event.data === 'refreshTurnstile' && widgetId !== null) {
         if (executing) {
           turnstile.reset(widgetId);
+          setTimeout(() => safelyExecute(), 300); // give reset time to complete
+        } else {
+          safelyExecute();
         }
-        turnstile.execute(widgetId);
-        executing = true;
       }
     });
   </script>
