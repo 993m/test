@@ -28,16 +28,29 @@
       }, 100);
     }
 
-    window.onload = () => {
-      window.ReactNativeWebView?.postMessage("Turnstile script loaded");
-      const interval = setInterval(() => {
-        if (typeof turnstile !== 'undefined') {
-          clearInterval(interval);
-          const widgetId = turnstile.render('#cf-turnstile');
-          turnstile.execute(widgetId);
-        }
-      }, 100);
-    };
+    let widgetId = null;
+
+window.onload = () => {
+  window.ReactNativeWebView?.postMessage("Turnstile script loaded");
+
+  const interval = setInterval(() => {
+    if (typeof turnstile !== 'undefined') {
+      clearInterval(interval);
+
+      if (!widgetId) {
+        widgetId = turnstile.render('#cf-turnstile', {
+          sitekey: '1x00000000000000000000AA',
+          callback: onSuccess,
+          theme: 'light',
+          size: 'invisible'
+        });
+      }
+
+      turnstile.execute(widgetId);
+    }
+  }, 100);
+};
+
   </script>
 </body>
 </html>
