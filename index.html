@@ -9,48 +9,43 @@
   </style>
 </head>
 <body>
-  <div id="cf-turnstile"
-       class="cf-turnstile"
-       data-sitekey="1x00000000000000000000AA"
-       data-callback="onSuccess"
-       data-theme="light"
-       data-size="invisible">
-  </div>
-  <script>
-    function onSuccess(token) {
-      window.ReactNativeWebView?.postMessage("Token: " + token);
-      setTimeout(() => {
-        if (window.ReactNativeWebView?.postMessage) {
-          window.ReactNativeWebView.postMessage(token);
-        } else {
-          alert("Token: " + token);
-        }
-      }, 100);
-    }
+  <div id="cf-turnstile"></div>
 
+  <script>
     let widgetId = null;
 
-window.onload = () => {
-  window.ReactNativeWebView?.postMessage("Turnstile script loaded");
-
-  const interval = setInterval(() => {
-    if (typeof turnstile !== 'undefined') {
-      clearInterval(interval);
-
-      if (!widgetId) {
-        widgetId = turnstile.render('#cf-turnstile', {
-          sitekey: '1x00000000000000000000AA',
-          callback: onSuccess,
-          theme: 'light',
-          size: 'invisible'
-        });
+    function onSuccess(token) {
+      if (window.ReactNativeWebView?.postMessage) {
+        window.ReactNativeWebView.postMessage(token);
+      } else {
+        alert("Token: " + token);
       }
-
-      turnstile.execute(widgetId);
     }
-  }, 100);
-};
 
+    window.onload = () => {
+      window.ReactNativeWebView?.postMessage("Turnstile script loaded");
+      const interval = setInterval(() => {
+        if (typeof turnstile !== 'undefined') {
+          clearInterval(interval);
+          if (!widgetId) {
+            widgetId = turnstile.render('#cf-turnstile', {
+              sitekey: '0x4AAAAAAA_p1mcUrGyeWba8',
+              callback: onSuccess,
+              theme: 'light',
+              size: 'invisible'
+            });
+          }
+          turnstile.execute(widgetId);
+        }
+      }, 100);
+    };
+
+    window.addEventListener('message', (event) => {
+      if (event.data === 'refreshTurnstile' && widgetId !== null) {
+        turnstile.reset(widgetId);
+        turnstile.execute(widgetId);
+      }
+    });
   </script>
 </body>
 </html>
