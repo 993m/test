@@ -5,7 +5,13 @@
   <title>Turnstile Test</title>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
-    html, body { height: 100%; margin: 0; display: flex; align-items: center; justify-content: center; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -13,8 +19,10 @@
 
   <script>
     let widgetId = null;
+    let executing = false;
 
     function onSuccess(token) {
+      executing = false;
       if (window.ReactNativeWebView?.postMessage) {
         window.ReactNativeWebView.postMessage(token);
       } else {
@@ -24,26 +32,29 @@
 
     window.onload = () => {
       window.ReactNativeWebView?.postMessage("Turnstile script loaded");
+
       const interval = setInterval(() => {
-        if (typeof turnstile !== 'undefined') {
+        if (typeof turnstile !== 'undefined' && !widgetId) {
           clearInterval(interval);
-          if (!widgetId) {
-            widgetId = turnstile.render('#cf-turnstile', {
-              sitekey: '0x4AAAAAAA_p1mcUrGyeWba8',
-              callback: onSuccess,
-              theme: 'light',
-              size: 'invisible'
-            });
-          }
+          widgetId = turnstile.render('#cf-turnstile', {
+            sitekey: '0x4AAAAAAA_p1mcUrGyeWba8',
+            callback: onSuccess,
+            theme: 'light',
+            size: 'compact' // ✅ valid: "compact", "normal", or "flexible"
+          });
           turnstile.execute(widgetId);
+          executing = true;
         }
       }, 100);
     };
 
     window.addEventListener('message', (event) => {
       if (event.data === 'refreshTurnstile' && widgetId !== null) {
-        turnstile.reset(widgetId);
+        if (executing) {
+          turnstile.reset(widgetId);
+        }
         turnstile.execute(widgetId);
+        executing = true;
       }
     });
   </script>
