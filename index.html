@@ -18,17 +18,18 @@
   </div>
   <script>
     function onSuccess(token) {
-  console.log("Inside onSuccess with token:", token); 
-  setTimeout(() => {
-    if (window.ReactNativeWebView?.postMessage) {
-      window.ReactNativeWebView.postMessage(token);
-    } else {
-      alert("Token: " + token);
+      window.ReactNativeWebView?.postMessage("Token: " + token);
+      setTimeout(() => {
+        if (window.ReactNativeWebView?.postMessage) {
+          window.ReactNativeWebView.postMessage(token);
+        } else {
+          alert("Token: " + token);
+        }
+      }, 100);
     }
-  }, 100);
-}
 
     window.onload = () => {
+      window.ReactNativeWebView?.postMessage("Turnstile script loaded");
       const interval = setInterval(() => {
         if (typeof turnstile !== 'undefined') {
           clearInterval(interval);
