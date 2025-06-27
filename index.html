@@ -53,7 +53,6 @@
             size: 'compact'
           });
 
-          // Wait a little before executing to let rendering settle
           setTimeout(() => safelyExecute(), 300);
         }
       }, 100);
@@ -63,7 +62,7 @@
       if (event.data === 'refreshTurnstile' && widgetId !== null) {
         if (executing) {
           turnstile.reset(widgetId);
-          setTimeout(() => safelyExecute(), 300); // give reset time to complete
+          setTimeout(() => safelyExecute(), 300);
         } else {
           safelyExecute();
         }
