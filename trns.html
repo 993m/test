@@ -5,8 +5,8 @@
   <style>
     body {
       margin: 0;
-      display: flex;
       height: 100vh;
+      display: flex;
       align-items: center;
       justify-content: center;
     }
@@ -19,22 +19,18 @@
 
     const onSuccess = token => {
       executing = false;
-      window.ReactNativeWebView?.postMessage?.(token) || alert("Token: " + token);
+      window.ReactNativeWebView?.postMessage?.(token);
     };
-
     const safelyExecute = () => {
       if (widgetId && !executing) {
         try {
           turnstile.execute(widgetId);
           executing = true;
-        } catch (e) {
-          console.error("Turnstile error:", e);
-        }
+        } catch {}
       }
     };
 
     window.onload = () => {
-      window.ReactNativeWebView?.postMessage?.("Turnstile script loaded");
       const interval = setInterval(() => {
         if (typeof turnstile !== 'undefined') {
           clearInterval(interval);
@@ -48,10 +44,9 @@
         }
       }, 100);
     };
-
     window.addEventListener('message', e => {
       if (e.data === 'refreshTurnstile' && widgetId) {
-        executing ? turnstile.reset(widgetId) : null;
+        if (executing) turnstile.reset(widgetId);
         setTimeout(safelyExecute, 300);
       }
     });
