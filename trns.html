@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Turnstile Test</title>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
-    html, body {
-      height: 100%;
+    body {
       margin: 0;
       display: flex;
+      height: 100vh;
       align-items: center;
       justify-content: center;
     }
@@ -16,35 +14,29 @@
 </head>
 <body>
   <div id="cf-turnstile"></div>
-
   <script>
-    let widgetId = null;
-    let executing = false;
+    let widgetId = null, executing = false;
 
-    function onSuccess(token) {
+    const onSuccess = token => {
       executing = false;
-      if (window.ReactNativeWebView?.postMessage) {
-        window.ReactNativeWebView.postMessage(token);
-      } else {
-        alert("Token: " + token);
-      }
-    }
+      window.ReactNativeWebView?.postMessage?.(token) || alert("Token: " + token);
+    };
 
-    function safelyExecute() {
-      if (!widgetId || executing) return;
-      try {
-        turnstile.execute(widgetId);
-        executing = true;
-      } catch (e) {
-        console.error("Turnstile execute error:", e);
+    const safelyExecute = () => {
+      if (widgetId && !executing) {
+        try {
+          turnstile.execute(widgetId);
+          executing = true;
+        } catch (e) {
+          console.error("Turnstile error:", e);
+        }
       }
-    }
+    };
 
     window.onload = () => {
-      window.ReactNativeWebView?.postMessage("Turnstile script loaded");
-
+      window.ReactNativeWebView?.postMessage?.("Turnstile script loaded");
       const interval = setInterval(() => {
-        if (typeof turnstile !== 'undefined' && !widgetId) {
+        if (typeof turnstile !== 'undefined') {
           clearInterval(interval);
           widgetId = turnstile.render('#cf-turnstile', {
             sitekey: '0x4AAAAAAA_p1mcUrGyeWba8',
@@ -52,20 +44,15 @@
             theme: 'light',
             size: 'compact'
           });
-
-          setTimeout(() => safelyExecute(), 300);
+          setTimeout(safelyExecute, 300);
         }
       }, 100);
     };
 
-    window.addEventListener('message', (event) => {
-      if (event.data === 'refreshTurnstile' && widgetId !== null) {
-        if (executing) {
-          turnstile.reset(widgetId);
-          setTimeout(() => safelyExecute(), 300);
-        } else {
-          safelyExecute();
-        }
+    window.addEventListener('message', e => {
+      if (e.data === 'refreshTurnstile' && widgetId) {
+        executing ? turnstile.reset(widgetId) : null;
+        setTimeout(safelyExecute, 300);
       }
     });
   </script>
